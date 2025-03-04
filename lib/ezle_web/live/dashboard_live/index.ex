@@ -1,6 +1,8 @@
 defmodule EzleWeb.DashboardLive.Index do
   use EzleWeb, :live_view
+  alias Ezle.Flow.StoryCard
 
+  @impl true
   def render(assigns) do
     ~H"""
     <div>
@@ -15,6 +17,7 @@ defmodule EzleWeb.DashboardLive.Index do
     """
   end
 
+  @impl true
   def mount(_params, _session, socket) do
     {:ok,
       socket
@@ -28,7 +31,7 @@ defmodule EzleWeb.DashboardLive.Index do
   def handle_event("change-data", %{"set" => set}, socket) do
     options =
       case String.to_existing_atom(set) do
-        :throughput -> %{type: :line, points: [1, 2, -1, 4, 5], labels: ["2025-06", "2025-07", "2025-08", "2025-09", "2025-10"]}
+        :throughput -> throughput_completed(stories())
         :planned -> %{type: :line, points: [1, 2, -1, 4, 5], labels: ["2025-06", "2025-07", "2025-08", "2025-09", "2025-10"]}
         :predictability -> %{type: :bar, points: [10, 2, 8, 3, 9], labels: ["2025-06", "2025-07", "2025-08", "2025-09", "2025-10"]}
         :quality -> %{type: :bar, points: [10, 2, 8, 3, 9], labels: ["2025-06", "2025-07", "2025-08", "2025-09", "2025-10"]}
@@ -46,4 +49,34 @@ defmodule EzleWeb.DashboardLive.Index do
     {:noreply, socket}
   end
 
+  defp throughput_completed(stories) do
+    data = Ezle.Flow.StoryBoard.completed_by_year_week(stories)
+
+    %{
+      type: :line,
+      points: data |> Enum.map(fn ({_, count}) -> count end),
+      labels: data |> Enum.map(fn ({yw, _}) -> yw end)
+    }
+  end
+
+  defp stories do
+    [
+      %StoryCard{title: "Started", started_at: "2025-03-04T09:10:11Z"},
+      %StoryCard{title: "Same Day", started_at: "2025-03-04T09:10:11Z", completed_at: "2005-03-04T09:10:11Z"},
+      %StoryCard{title: "Same Day", started_at: "2025-03-04T09:10:11Z", completed_at: "2005-03-04T09:10:11Z"},
+      %StoryCard{title: "Long time", started_at: "2025-03-15T09:10:11Z"},
+      %StoryCard{title: "Last Week A", started_at: "2025-03-26T09:10:11Z"},
+      %StoryCard{title: "Last Week B", started_at: "2025-03-24T09:10:11Z"},
+      %StoryCard{title: "Last Week C", started_at: "2025-03-26T09:10:11Z", completed_at: "2025-03-28T09:10:11Z"},
+      %StoryCard{title: "Mar Week 2", started_at: "2025-03-17T09:10:11Z", completed_at: "2025-03-21T09:10:11Z"},
+      %StoryCard{title: "Mar Week 1", started_at: "2025-03-10T09:10:11Z", completed_at: "2025-03-14T09:10:11Z"},
+      %StoryCard{title: "Mar Week 1", started_at: "2025-03-10T09:10:11Z", completed_at: "2025-03-14T09:10:11Z"},
+      %StoryCard{title: "Mar Week 1", started_at: "2025-03-10T09:10:11Z", completed_at: "2025-03-14T09:10:11Z"},
+      %StoryCard{title: "Feb Week 4", started_at: "2025-02-24T09:10:11Z", completed_at: "2025-02-28T09:10:11Z"},
+      %StoryCard{title: "Feb Week 3", started_at: "2025-02-17T09:10:11Z", completed_at: "2025-02-21T09:10:11Z"},
+      %StoryCard{title: "Feb Week 2", started_at: "2025-02-10T09:10:11Z", completed_at: "2025-02-14T09:10:11Z"},
+      %StoryCard{title: "Feb Week 1", started_at: "2025-02-3T09:10:11Z", completed_at: "2025-02-07T09:10:11Z"},
+      %StoryCard{title: "Feb Week 1", started_at: "2025-02-3T09:10:11Z", completed_at: "2025-02-07T09:10:11Z"}
+    ]
+  end
 end
