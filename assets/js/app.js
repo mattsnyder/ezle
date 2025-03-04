@@ -21,11 +21,39 @@ import "phoenix_html"
 import {Socket} from "phoenix"
 import {LiveSocket} from "phoenix_live_view"
 import topbar from "../vendor/topbar"
+import Chart from 'chart.js/auto';
+
+// Hookup Chart js to the dashboard
+let hooks = {}
+hooks.ChartJS =  {
+  mounted() {
+    const ctx = this.el;
+    const data = {
+      type: 'bar',
+      data: {
+        labels: [],
+        datasets: [{data: []}]
+    }};
+    var chart = new Chart(ctx, data);
+
+    this.handleEvent("update-chart", function(payload){ 
+      chart.destroy();
+      var context = document.getElementById('my-chart').getContext('2d');
+      chart = new Chart(ctx, { 
+        type: payload.type,
+        data: {
+          labels: payload.labels,
+          datasets: [{data: payload.points}]}
+        });
+    });
+  }
+}
 
 let csrfToken = document.querySelector("meta[name='csrf-token']").getAttribute("content")
 let liveSocket = new LiveSocket("/live", Socket, {
   longPollFallbackMs: 2500,
-  params: {_csrf_token: csrfToken}
+  params: {_csrf_token: csrfToken},
+  hooks: hooks
 })
 
 // Show progress bar on live navigation and form submits
