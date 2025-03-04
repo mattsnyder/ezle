@@ -6,9 +6,10 @@ defmodule EzleWeb.DashboardLive.Index do
     <div>
     {@chart_title} <canvas id="my-chart" phx-hook="ChartJS" data-points={Jason.encode!(@points)}></canvas>
       <div class="flex flex-row justify-center gap-4">
-        <.button phx-click="change-data" phx-value-set="1">SET 1</.button>
-        <.button phx-click="change-data" phx-value-set="2">SET 2</.button>
-        <.button phx-click="change-data" phx-value-set="3">SET 3</.button>
+        <.button phx-click="change-data" phx-value-set="throughput">Throughput</.button>
+        <.button phx-click="change-data" phx-value-set="planned">Planned vs Unplanned</.button>
+        <.button phx-click="change-data" phx-value-set="predictability">Predictability</.button>
+        <.button phx-click="change-data" phx-value-set="quality">Quality</.button>
       </div>
     </div>
     """
@@ -26,9 +27,11 @@ defmodule EzleWeb.DashboardLive.Index do
   @impl true
   def handle_event("change-data", %{"set" => set}, socket) do
     options =
-      case set do
-        "1" -> %{type: :line, points: [1, 2, -1, 4, 5], labels: ["2025-06", "2025-07", "2025-08", "2025-09", "2025-10"]}
-        "2" -> %{type: :bar, points: [10, 2, 8, 3, 9], labels: ["2025-06", "2025-07", "2025-08", "2025-09", "2025-10"]}
+      case String.to_existing_atom(set) do
+        :throughput -> %{type: :line, points: [1, 2, -1, 4, 5], labels: ["2025-06", "2025-07", "2025-08", "2025-09", "2025-10"]}
+        :planned -> %{type: :line, points: [1, 2, -1, 4, 5], labels: ["2025-06", "2025-07", "2025-08", "2025-09", "2025-10"]}
+        :predictability -> %{type: :bar, points: [10, 2, 8, 3, 9], labels: ["2025-06", "2025-07", "2025-08", "2025-09", "2025-10"]}
+        :quality -> %{type: :bar, points: [10, 2, 8, 3, 9], labels: ["2025-06", "2025-07", "2025-08", "2025-09", "2025-10"]}
         _ -> %{type: :bar, points: [5, 4, 3, 2, 1], labels: ["2025-06", "2025-07", "2025-08", "2025-09", "2025-10"]}
       end
 
